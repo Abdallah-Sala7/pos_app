@@ -6,17 +6,20 @@ import POSHeader from "@/layouts/POSHeader";
 import { Button } from "@/components/ui/button";
 import { RootState } from "@/store";
 import { useGetCategoriesQuery } from "@/store/server/categoriesApi";
-import { useAddOrderMutation } from "@/store/server/ordersApi";
 import { useFormik } from "formik";
 import { t } from "i18next";
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
-import { toast } from "react-toastify";
+import PrintInvoice from "@/components/common/PrintInvoice";
+import { useReactToPrint } from "react-to-print";
 
 const POSPage = () => {
   const { user } = useSelector((state: RootState) => state.user);
   const { products } = useSelector((state: RootState) => state.app);
+
+  const invoiceRef = useRef(null);
+  const reactToPrintFn = useReactToPrint({ contentRef: invoiceRef });
 
   const [params, setParams] = useSearchParams({
     page: "1",
@@ -29,8 +32,6 @@ const POSPage = () => {
     },
   });
 
-  const [addOrderAction] = useAddOrderMutation();
-
   const { values, setFieldValue, resetForm, handleSubmit, isSubmitting } =
     useFormik({
       initialValues: {
@@ -41,15 +42,24 @@ const POSPage = () => {
         products: [],
       },
       onSubmit: async () => {
-        await addOrderAction(values)
-          .unwrap()
-          .then((res) => {
-            toast.success(res.message || t("success-msg"));
-            resetForm();
-          })
-          .catch((error) => {
-            toast.error(error?.data?.message);
-          });
+        const invoices = JSON.parse(localStorage.getItem("@invoices") || "[]");
+
+        localStorage.setItem(
+          "@invoices",
+          JSON.stringify([
+            ...invoices,
+            {
+              ...values,
+              created_at: new Date().toISOString(),
+            },
+          ])
+        );
+
+        setTimeout(() => {
+          reactToPrintFn(); // Trigger print
+        }, 500);
+
+        resetForm();
       },
     });
 
@@ -103,6 +113,10 @@ const POSPage = () => {
           </div>
         </div>
       </div>
+
+      <div style={{ display: "none" }}>
+        <PrintInvoice invoiceRef={invoiceRef} order={values} />
+      </div>
     </section>
   );
 };
@@ -135,62 +149,8 @@ const POSForm = ({
   }, [values?.products]);
 
   return (
-    <div className="flex-1 max-w-80 max-h-[calc(100vh-75px)] h-screen pe-6 border-e sticky top-[75px] pt-6 space-y-3 overflow-y-auto flex flex-col">
-      {/* <div className="space-y-3 pb-3 border-b">
-        <h2 className="font-semibold">{t("customer-details")}</h2>
-
-        <div className="space-y-2">
-          <div className="form-group">
-            <MobileInput
-              type="text"
-              autoComplete="off"
-              placeholder={t("client-mobile")}
-              name="client_mobile"
-              value={values.client_mobile}
-              required
-              onChange={handleChange}
-              className="h-10"
-            />
-            {errors?.client_mobile && (
-              <span className="form-error">{errors?.client_mobile}</span>
-            )}
-          </div>
-
-          <div className="form-group">
-            <Input
-              type="text"
-              autoComplete="off"
-              placeholder={`${t("client-name")} (${t("optional")})`}
-              name="client_name"
-              value={values.client_name}
-              required
-              onChange={handleChange}
-              className="h-10"
-            />
-            {errors?.client_name && (
-              <span className="form-error">{errors?.client_name}</span>
-            )}
-          </div>
-
-          <div className="form-group">
-            <Input
-              type="text"
-              autoComplete="off"
-              placeholder={`${t("discount-code")} (${t("optional")})`}
-              name="code"
-              value={values.code}
-              required
-              onChange={handleChange}
-              className="h-10"
-            />
-            {errors?.code && <span className="form-error">{errors?.code}</span>}
-          </div>
-        </div>
-      </div> */}
-
-      <div className="space-y-3 pb-3 flex-1">
-        <h2 className="font-semibold">{t("order-details")}</h2>
-
+    <div className="flex-1 max-w-80 max-h-[calc(100vh-75px)] h-screen pe-6 border-e sticky top-[75px] pt-3 space-y-3 overflow-y-auto flex flex-col">
+      <div className="pb-3 flex-1">
         <div className="divide-y">
           {values?.products?.map((product: any) => (
             <CartProductCard
@@ -204,18 +164,10 @@ const POSForm = ({
       </div>
 
       <div className="py-3 space-y-4 bg-background sticky bottom-0 border-t">
-        <div className="flex justify-between gap-2 text-sm">
-          <p className="font-semibold text-muted-foreground">{t("discount")}</p>
-
-          <p className="font-semibold">
-            <CurrencyFormate amount={values?.discount} />
-          </p>
-        </div>
-
         <Button
           onClick={() => handleSubmit()}
           disabled={isSubmitting}
-          className="w-full h-12"
+          className="w-full h-14"
           size={"lg"}
         >
           <CurrencyFormate className="text-lg font-bold" amount={total} />

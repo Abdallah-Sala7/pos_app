@@ -12,10 +12,8 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { useGetAllProductsMutation } from "@/store/server/productsApi";
 import { useDispatch } from "react-redux";
 import { saveUserInfo, storeToken } from "@/store/reducer/auth";
-import { setProducts } from "@/store/reducer/appSlice";
 import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
@@ -24,8 +22,6 @@ const LoginPage = () => {
 
   const { t } = useTranslation();
   const [loginAction] = useLoginMutation();
-  const [getAllProducts, { isLoading: productsSyncIsLoading }] =
-    useGetAllProductsMutation();
 
   const {
     values,
@@ -46,7 +42,6 @@ const LoginPage = () => {
       await loginAction(values)
         .unwrap()
         .then(async (payload) => {
-          const store_id = payload?.result?.profile?.pos_device?.store?.id;
           const stored_token = payload?.result?.access_token;
           const user = payload?.result?.profile;
 
@@ -56,42 +51,13 @@ const LoginPage = () => {
           dispatch(storeToken(stored_token));
           dispatch(saveUserInfo(user));
 
-          await getAllProducts({
-            params: {
-              store_id: store_id,
-            },
-            token: stored_token,
-          })
-            .unwrap()
-            .then((res) => {
-              localStorage.setItem(
-                "@products",
-                JSON.stringify(res?.result?.products)
-              );
-
-              dispatch(setProducts(res?.result?.products));
-
-              navigate("/", {
-                replace: true,
-              });
-            })
-            .catch((error) => {
-              toast.error(error?.data?.message);
-            });
+          navigate("/", {
+            replace: true,
+          });
         })
         .catch((error) => toast.error(error?.data?.message));
     },
   });
-
-  if (productsSyncIsLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <p className="text-2xl font-bold text-red-700">
-          Products are syncing please wait...
-        </p>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex flex-col">

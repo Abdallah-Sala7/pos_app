@@ -32,10 +32,6 @@ export const productsApi = createApi({
         return {
           url: `/products`,
           method: "get",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${arg.token}`,
-          },
           ...arg,
         };
       },
