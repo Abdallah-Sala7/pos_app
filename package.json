@@ -62,8 +62,14 @@
     },
     "win": {
       "icon": "build/logo.png",
-      "target": "nsis",
-      "sign": false
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
     },
     "nsis": {
       "oneClick": false,
