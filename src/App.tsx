@@ -5,10 +5,6 @@ import { authenticationRoutes, mainRoutes } from "./helper/routes";
 
 function App() {
   const router = createBrowserRouter([
-    {
-      path: "*",
-      element: <p className="text-3xl text-red-700 font-bold">Error Page</p>,
-    },
     { path: "/", element: <MainLayout />, children: [...mainRoutes] },
     {
       path: "/login",
