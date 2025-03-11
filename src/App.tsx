@@ -1,14 +1,21 @@
-import MainLayout from "./layouts/MainLayout";
-
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { authenticationRoutes, mainRoutes } from "./helper/routes";
+
+import POSPage from "./screens/pos";
+import LoginPage from "./screens/LoginPage";
 
 function App() {
   const router = createBrowserRouter([
-    { path: "/", element: <MainLayout />, children: [...mainRoutes] },
+    {
+      path: "*",
+      element: <LoginPage />,
+    },
+    {
+      path: "/",
+      element: <POSPage />,
+    },
     {
       path: "/login",
-      children: [...authenticationRoutes],
+      element: <LoginPage />,
     },
   ]);
 
