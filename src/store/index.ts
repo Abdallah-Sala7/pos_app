@@ -7,6 +7,10 @@ import { appSlice } from "./reducer/appSlice";
 import { productsApi } from "./server/productsApi";
 import { ordersApi } from "./server/ordersApi";
 import { categoriesApi } from "./server/categoriesApi";
+import { customersApi } from "./server/customersApi";
+import { invoicesApi } from "./server/invoicesApi";
+import { usersApi } from "./server/usersApi";
+import { userApi } from "./server/userApi";
 
 export const store = configureStore({
   reducer: {
@@ -19,6 +23,10 @@ export const store = configureStore({
     mainApi: mainApi.reducer,
     ordersApi: ordersApi.reducer,
     categoriesApi: categoriesApi.reducer,
+    customersApi: customersApi.reducer,
+    invoicesApi: invoicesApi.reducer,
+    usersApi: usersApi.reducer,
+    userApi: userApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -26,7 +34,11 @@ export const store = configureStore({
       mainApi.middleware,
       productsApi.middleware,
       ordersApi.middleware,
-      categoriesApi.middleware
+      categoriesApi.middleware,
+      customersApi.middleware,
+      invoicesApi.middleware,
+      usersApi.middleware,
+      userApi.middleware
     ),
 });
 

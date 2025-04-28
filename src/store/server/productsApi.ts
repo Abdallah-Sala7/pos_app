@@ -4,7 +4,7 @@ import {
   FetchArgs,
   fetchBaseQuery,
 } from "@reduxjs/toolkit/query/react";
-import { baseQuery, IErr } from "./baseQuery";
+import { baseQuery, IErr, multipartHeader } from "./baseQuery";
 
 export const productsApi = createApi({
   reducerPath: "productsApi",
@@ -36,7 +36,73 @@ export const productsApi = createApi({
         };
       },
     }),
+
+    addProducts: builder.mutation({
+      query: (body) => {
+        return {
+          url: `/products/add`,
+          method: "post",
+          body,
+          headers: multipartHeader,
+        };
+      },
+      invalidatesTags: ["Products"],
+    }),
+
+    updateProducts: builder.mutation({
+      query: (body) => {
+        return {
+          url: `/products/update`,
+          method: "post",
+          body,
+          headers: multipartHeader,
+        };
+      },
+      invalidatesTags: ["Products"],
+    }),
+
+    getProductById: builder.query({
+      query: (id) => `/products/${id}`,
+      providesTags: ["Products"],
+    }),
+
+    updateProductActivation: builder.mutation({
+      query: (id) => ({
+        url: `/products/update_is_active/${id}`,
+        method: "post",
+      }),
+
+      invalidatesTags: ["Products"],
+    }),
+
+    updateProductStatus: builder.mutation({
+      query: (body) => ({
+        url: `/products/update_status`,
+        method: "post",
+        body,
+      }),
+
+      invalidatesTags: ["Products"],
+    }),
+
+    deleteProduct: builder.mutation({
+      query: (id) => ({
+        url: `/products/delete/${id}`,
+        method: "post",
+      }),
+
+      invalidatesTags: ["Products"],
+    }),
   }),
 });
 
-export const { useGetProductsQuery, useGetAllProductsMutation } = productsApi;
+export const {
+  useGetProductsQuery,
+  useAddProductsMutation,
+  useUpdateProductsMutation,
+  useGetProductByIdQuery,
+  useUpdateProductActivationMutation,
+  useUpdateProductStatusMutation,
+  useDeleteProductMutation,
+  useGetAllProductsMutation,
+} = productsApi;
