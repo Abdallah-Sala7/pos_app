@@ -13,6 +13,7 @@ import Customers from "@/screens/customers";
 import Suppliers from "@/screens/suppliers";
 import AddSuppliers from "@/screens/suppliers/add";
 import UpdateSuppliers from "@/screens/suppliers/update";
+import AddProduct from "@/screens/products/add";
 
 type Route = RouteObject & {
   permission?: string | string[];
@@ -56,6 +57,10 @@ const mainRoutes: Route[] = [
       {
         index: true,
         element: <Products />,
+      },
+      {
+        path: "add",
+        element: <AddProduct />,
       },
       {
         path: ":id",

@@ -80,7 +80,10 @@ const PrintInvoice = ({
           {order.products?.map((product: any, index: number) => (
             <div key={index} className="flex items-center">
               <p className="flex-1 text-xs text-start text-gray-950">
-                {product?.[t("_tr_name")] || product?.name}
+                {product?.["_tr_name"] ||
+                  product?.name_ar ||
+                  product?.name_en ||
+                  product?.name}
               </p>
 
               <p className="flex-1 max-w-12 text-xs text-center font-semibold text-black">

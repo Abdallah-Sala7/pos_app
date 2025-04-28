@@ -26,8 +26,9 @@ const CartProductCard = ({
       <div className="flex-1 space-y-4 py-1.5">
         <div className="space-y-1">
           <h2 className="text-sm font-semibold">
-            {product?.product?.main_product?.["_tr_name"] ||
-              product?.product?.main_product?.name_en ||
+            {product?.["_tr_name"] ||
+              product?.name_ar ||
+              product?.name_en ||
               product?.name}
           </h2>
 

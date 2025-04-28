@@ -45,9 +45,7 @@ const AddCustomProduct = ({
             <label className="form-label">{t("price")}</label>
             <PriceInput
               value={product?.price}
-              onChange={(val) => {
-                setProduct({ ...product, price: Number(val) });
-              }}
+              onChange={(price) => setProduct({ ...product, price })}
             />
           </div>
 

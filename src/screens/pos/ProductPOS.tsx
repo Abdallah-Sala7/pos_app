@@ -1,6 +1,10 @@
+import SuccessBooking from "./components/SuccessBooking";
 import CartProductCard from "@/components/common/CartProductCard";
 import LoadingPage from "@/components/common/LoadingPage";
 import POSProductCard from "@/components/common/POSProductCard";
+import ConfirmOrderBtn from "./components/ConfirmOrderBtn";
+import AddCustomProduct from "./components/AddCustomProduct";
+import SearchInput from "@/components/common/SearchInput";
 
 import { t } from "i18next";
 import { useFormik } from "formik";
@@ -11,26 +15,19 @@ import { Button } from "@/components/ui/button";
 import { useGetCategoriesQuery } from "@/store/server/categoriesApi";
 import { useGetAllProductsMutation } from "@/store/server/productsApi";
 import { RefreshCcwDotIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useAddInvoicesMutation } from "@/store/server/invoicesApi";
-import ConfirmOrderBtn from "./components/ConfirmOrderBtn";
-import AddCustomProduct from "./components/AddCustomProduct";
-import SearchInput from "@/components/common/SearchInput";
 import { POS_PERMISSIONS } from "@/constant";
-import SuccessBooking from "./components/SuccessBooking";
 
 const ProductPOS = () => {
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
   const [confirmIsOpen, setConfirmIsOpen] = useState(false);
-  const [products, setProducts] = useState<any[]>([]);
   const [getProducts, { isLoading }] = useGetAllProductsMutation();
 
   const { user } = useSelector((state: RootState) => state.user);
   const [invoice, setInvoice] = useState<any>({});
   const [params, setParams] = useSearchParams({
-    page: "1",
-    limit: "80",
     store_id: user?.active_branch?.toString() || "",
   });
 
@@ -53,11 +50,12 @@ const ProductPOS = () => {
       },
     });
 
-    setProducts(data?.result?.products || []);
     localStorage.setItem(
       "@stored_products",
       JSON.stringify(data?.result?.products || [])
     );
+
+    return data?.result?.products || [];
   };
 
   const { values, setFieldValue, handleSubmit, isSubmitting, resetForm } =
@@ -94,15 +92,21 @@ const ProductPOS = () => {
     }
   }, [user?.active_branch]);
 
-  useEffect(() => {
-    if (!storedProducts || !JSON?.parse(storedProducts)?.length) {
-      getProductsHandler();
-    } else {
-      setProducts(JSON.parse(storedProducts));
-    }
-  }, [storedProducts]);
+  const products = useMemo(() => {
+    let filteredProducts = [] as any;
 
-  if (isLoading) return <LoadingPage />;
+    if (!storedProducts || !JSON?.parse(storedProducts)?.length) {
+      filteredProducts = getProductsHandler();
+    } else {
+      filteredProducts = JSON.parse(storedProducts);
+    }
+
+    return params.get("category_id")
+      ? filteredProducts?.filter(
+          (product: any) => product?.category?.id == params.get("category_id")
+        )
+      : filteredProducts;
+  }, [storedProducts, params.get("category_id")]);
 
   const showProductImage = user?.permissions?.includes(
     POS_PERMISSIONS.SHOW_PRODUCT_IMAGE
@@ -111,6 +115,8 @@ const ProductPOS = () => {
   const showCategory = user?.permissions?.includes(
     POS_PERMISSIONS.SHOW_CATEGORIES
   );
+
+  if (isLoading) return <LoadingPage />;
 
   return (
     <div className="flex items-start gap-6">
@@ -124,11 +130,7 @@ const ProductPOS = () => {
       />
 
       <div className="flex-1 space-y-6 pt-6">
-        <div className="">
-          <SearchInput />
-        </div>
-
-        {showCategory && categories?.result?.categories?.length > 1 && (
+        {showCategory && categories?.result?.categories?.length > 1 ? (
           <div className="flex items-center gap-2 flex-wrap">
             {categories?.result?.categories?.map((category: any) => (
               <Button
@@ -150,6 +152,10 @@ const ProductPOS = () => {
                 {category?.[t("_tr_name")] || category?.name_ar}
               </Button>
             ))}
+          </div>
+        ) : (
+          <div>
+            <SearchInput />
           </div>
         )}
 

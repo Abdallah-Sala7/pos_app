@@ -48,11 +48,13 @@ const ProductsPage = () => {
       <div className="flex items-center justify-between gap-6 flex-wrap">
         <SearchInput isLoading={isLoading || isFetching} />
 
-        <QuickAddProducts store_id={user?.active_branch} />
+        <div className="flex items-center gap-3">
+          <QuickAddProducts store_id={user?.active_branch} />
 
-        <Link to="/products/add">
-          <Button>{t("add-products")}</Button>
-        </Link>
+          <Link to="/products/add">
+            <Button>{t("add-products")}</Button>
+          </Link>
+        </div>
       </div>
 
       <Card className="shadow-none">

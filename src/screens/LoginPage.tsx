@@ -200,7 +200,7 @@ const LoginCashier = () => {
                   size={"lg"}
                   type="button"
                   variant={"outlineDestructive"}
-                  className="flex absolute -top-2 left-2 border-0"
+                  className="flex absolute top-0 start-2 border-0"
                   onClick={() => resetForm()}
                 >
                   <span>{t("logout")}</span>

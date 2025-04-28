@@ -19,13 +19,16 @@ const PriceInput = ({
   disabled?: boolean;
   [key: string]: any;
 }) => {
-  // const numValue = Number(value || 0);
+  const numValue =
+    String(value)?.split(".")?.[1]?.length > 3
+      ? Number(value)?.toFixed(3)
+      : value;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
 
     // Allow only digits and at most one decimal point
-    if (/^\d*\.?\d{0,2}$/.test(val) && val.length <= max.toString().length) {
+    if (/^\d*\.?\d{0,3}$/.test(val) && val.length <= max.toString().length) {
       onChange?.(val);
     }
   };
@@ -39,7 +42,7 @@ const PriceInput = ({
       <Input
         type="text"
         className={cn("pe-14", className)}
-        value={value}
+        value={numValue}
         required={required}
         placeholder="0.00"
         disabled={disabled}
